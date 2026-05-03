@@ -26,7 +26,7 @@ function botReply(text) {
 }
 
 // Send
-function sendMessage() {
+async function sendMessage() {
   const input = document.getElementById("userInput");
   const text = input.value.trim();
   if (!text) return;
@@ -34,7 +34,25 @@ function sendMessage() {
   addMessage("You", text);
   input.value = "";
 
-  handleChat(text.toLowerCase());
+  // Call backend
+  try {
+    const res = await fetch("http://localhost:3000/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await res.json();
+    addMessage("Bot", data.reply);
+
+  } catch (err) {
+    addMessage("Bot", "AI not available. Using basic logic.");
+
+    // fallback to old logic
+    handleChat(text.toLowerCase());
+  }
 }
 
 // Chat logic
@@ -74,33 +92,38 @@ function handleChat(text) {
 // QUIZ
 let quizData = [
   {
-    q: "Minimum voting age?",
-    options: ["16", "18", "21"],
+    q: "What is the minimum voting age?",
+    options: ["16", "18", "21", "25"],
     correct: 1
   },
   {
-    q: "What is EVM?",
-    options: ["Machine", "Law", "Person"],
+    q: "Who conducts elections in India?",
+    options: ["Police", "Government", "Election Commission", "Army"],
+    correct: 2
+  },
+  {
+    q: "What is an EVM?",
+    options: ["Voting Machine", "Law", "ID Card", "Booth"],
     correct: 0
-  },
-  {
-    q: "Who conducts elections?",
-    options: ["Government", "Election Commission", "Police"],
-    correct: 1
   }
 ];
 
 let currentQ = 0;
 let score = 0;
+let selected = null;
 
+// Start quiz
 function startQuiz() {
   currentQ = 0;
   score = 0;
   loadQuestion();
 }
 
+// Load question
 function loadQuestion() {
   let q = quizData[currentQ];
+  selected = null;
+
   document.getElementById("question").innerText = q.q;
 
   let answers = document.getElementById("answers");
@@ -109,23 +132,47 @@ function loadQuestion() {
   q.options.forEach((opt, i) => {
     let btn = document.createElement("button");
     btn.innerText = opt;
-    btn.onclick = () => checkAnswer(i);
+
+    btn.onclick = () => selectAnswer(btn, i);
+
     answers.appendChild(btn);
   });
+
+  document.getElementById("score").innerText = "";
 }
 
-function checkAnswer(i) {
-  if (i === quizData[currentQ].correct) score++;
+// Select answer
+function selectAnswer(button, index) {
+  selected = index;
+
+  // remove old highlight
+  document.querySelectorAll("#answers button").forEach(btn => {
+    btn.style.background = "#6c4ed9";
+  });
+
+  // highlight selected
+  button.style.background = "#00c853";
 }
 
+// Next question
 function nextQuestion() {
+  if (selected === null) {
+    alert("Please select an answer!");
+    return;
+  }
+
+  if (selected === quizData[currentQ].correct) {
+    score++;
+  }
+
   currentQ++;
 
   if (currentQ < quizData.length) {
     loadQuestion();
   } else {
-    document.getElementById("question").innerText = "Quiz Finished!";
+    document.getElementById("question").innerText = "🎉 Quiz Finished!";
     document.getElementById("answers").innerHTML = "";
-    document.getElementById("score").innerText = "Score: " + score;
+    document.getElementById("score").innerText =
+      "Your Score: " + score + " / " + quizData.length;
   }
 }

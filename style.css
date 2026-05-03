@@ -89,3 +89,8 @@ input {
   border-radius: 8px;
   border: none;
 }
+#answers button {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+}
