@@ -1,38 +1,35 @@
 let step = 0;
 let userAge = 0;
 
-// Switch sections
+// Sections
 function showSection(section) {
-  document.getElementById("chatSection").classList.add("hidden");
-  document.getElementById("timelineSection").classList.add("hidden");
-  document.getElementById("glossarySection").classList.add("hidden");
-  document.getElementById("quizSection").classList.add("hidden");
-
+  document.querySelectorAll(".section").forEach(sec => sec.classList.add("hidden"));
   document.getElementById(section + "Section").classList.remove("hidden");
+
+  if (section === "quiz") startQuiz();
 }
 
-// Add message
+// Chat
 function addMessage(sender, text) {
   const chatBox = document.getElementById("chatBox");
   const msg = document.createElement("div");
-  msg.classList.add("message");
-
-  if (sender === "You") {
-    msg.classList.add("user");
-  } else {
-    msg.classList.add("bot");
-  }
+  msg.classList.add("message", sender === "You" ? "user" : "bot");
 
   msg.innerText = sender + ": " + text;
   chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Send message
+// Typing effect
+function botReply(text) {
+  setTimeout(() => addMessage("Bot", text), 500);
+}
+
+// Send
 function sendMessage() {
   const input = document.getElementById("userInput");
   const text = input.value.trim();
-  if (text === "") return;
+  if (!text) return;
 
   addMessage("You", text);
   input.value = "";
@@ -43,8 +40,8 @@ function sendMessage() {
 // Chat logic
 function handleChat(text) {
   if (step === 0) {
-    addMessage("Bot", "Hi! I’m your Election Assistant 😊");
-    addMessage("Bot", "What is your age?");
+    botReply("Hi! I’m your Election Assistant 😊");
+    botReply("What is your age?");
     step = 1;
     return;
   }
@@ -52,17 +49,12 @@ function handleChat(text) {
   if (step === 1) {
     userAge = parseInt(text);
 
-    if (isNaN(userAge)) {
-      addMessage("Bot", "Please enter a valid age.");
-      return;
-    }
-
     if (userAge < 18) {
-      addMessage("Bot", "You are not eligible to vote yet.");
+      botReply("You are not eligible to vote.");
       step = 0;
     } else {
-      addMessage("Bot", "You are eligible to vote!");
-      addMessage("Bot", "Are you registered? (yes/no)");
+      botReply("You are eligible!");
+      botReply("Are you registered? (yes/no)");
       step = 2;
     }
     return;
@@ -70,30 +62,70 @@ function handleChat(text) {
 
   if (step === 2) {
     if (text === "no") {
-      addMessage("Bot", "You can register online or at your local election office.");
-      addMessage("Bot", "You need ID proof and address proof.");
-      step = 0;
-    } else if (text === "yes") {
-      addMessage("Bot", "On election day:");
-      addMessage("Bot", "1. Visit your polling booth");
-      addMessage("Bot", "2. Show your ID");
-      addMessage("Bot", "3. Cast your vote using EVM");
+      botReply("Register online or at an office with ID proof.");
       step = 0;
     } else {
-      addMessage("Bot", "Please answer yes or no.");
+      botReply("Go to polling booth and vote using EVM.");
+      step = 0;
     }
   }
+}
 
-  // Extra responses
-  if (text.includes("register")) {
-    addMessage("Bot", "Register online through the official election website.");
+// QUIZ
+let quizData = [
+  {
+    q: "Minimum voting age?",
+    options: ["16", "18", "21"],
+    correct: 1
+  },
+  {
+    q: "What is EVM?",
+    options: ["Machine", "Law", "Person"],
+    correct: 0
+  },
+  {
+    q: "Who conducts elections?",
+    options: ["Government", "Election Commission", "Police"],
+    correct: 1
   }
+];
 
-  if (text.includes("documents")) {
-    addMessage("Bot", "Required documents: ID proof and address proof.");
-  }
+let currentQ = 0;
+let score = 0;
 
-  if (text.includes("vote")) {
-    addMessage("Bot", "Visit your assigned polling booth to vote.");
+function startQuiz() {
+  currentQ = 0;
+  score = 0;
+  loadQuestion();
+}
+
+function loadQuestion() {
+  let q = quizData[currentQ];
+  document.getElementById("question").innerText = q.q;
+
+  let answers = document.getElementById("answers");
+  answers.innerHTML = "";
+
+  q.options.forEach((opt, i) => {
+    let btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = () => checkAnswer(i);
+    answers.appendChild(btn);
+  });
+}
+
+function checkAnswer(i) {
+  if (i === quizData[currentQ].correct) score++;
+}
+
+function nextQuestion() {
+  currentQ++;
+
+  if (currentQ < quizData.length) {
+    loadQuestion();
+  } else {
+    document.getElementById("question").innerText = "Quiz Finished!";
+    document.getElementById("answers").innerHTML = "";
+    document.getElementById("score").innerText = "Score: " + score;
   }
 }

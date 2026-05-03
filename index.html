@@ -6,7 +6,6 @@
 </head>
 <body>
 
-<!-- Navbar -->
 <div class="navbar">
   <h2>🗳️ ElectionGuide</h2>
   <div class="nav-buttons">
@@ -17,16 +16,15 @@
   </div>
 </div>
 
-<!-- Main -->
 <div class="container">
   <h1>Understand Elections, One Step at a Time</h1>
 
   <!-- CHAT -->
-  <div id="chatSection" class="section active">
+  <div id="chatSection" class="section">
     <div id="chatBox" class="chat-box"></div>
 
     <div class="input-area">
-      <input type="text" id="userInput" placeholder="Ask a question..." />
+      <input type="text" id="userInput" placeholder="Ask something..." />
       <button onclick="sendMessage()">Send</button>
     </div>
   </div>
@@ -34,24 +32,31 @@
   <!-- TIMELINE -->
   <div id="timelineSection" class="section hidden">
     <h2>📅 Election Timeline</h2>
-    <p>📌 Registration Deadline: October 1</p>
-    <p>🗳️ Voting Day: November 5</p>
-    <p>📊 Results Announcement: November 10</p>
+    <div class="card">📌 Registration Deadline: Oct 1</div>
+    <div class="card">🗳️ Voting Day: Nov 5</div>
+    <div class="card">📊 Results: Nov 10</div>
   </div>
 
   <!-- GLOSSARY -->
   <div id="glossarySection" class="section hidden">
     <h2>📘 Glossary</h2>
-    <p><b>EVM:</b> Electronic Voting Machine</p>
-    <p><b>Constituency:</b> A voting area</p>
-    <p><b>Ballot:</b> Method of voting</p>
+    <div class="card"><b>EVM:</b> Electronic Voting Machine</div>
+    <div class="card"><b>Constituency:</b> Voting area</div>
+    <div class="card"><b>Ballot:</b> Voting method</div>
   </div>
 
   <!-- QUIZ -->
   <div id="quizSection" class="section hidden">
-    <h2>🧠 Quiz</h2>
-    <p>Q: Minimum voting age?</p>
-    <p><b>Answer:</b> 18 years</p>
+    <h2>🧠 Election Quiz</h2>
+
+    <div id="quizBox">
+      <p id="question">Question here</p>
+
+      <div id="answers"></div>
+
+      <button onclick="nextQuestion()">Next</button>
+      <p id="score"></p>
+    </div>
   </div>
 
 </div>
