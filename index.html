@@ -1,37 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Election Guide Assistant</title>
-    <!-- Use Google Fonts for modern typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <title>Election Guide Assistant</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="chat-container">
-        <header class="chat-header">
-            <h1>Election Guide Assistant</h1>
-            <p>Your personal guide to elections</p>
-        </header>
-        
-        <main class="chat-box" id="chat-box">
-            <div class="message assistant">
-                <div class="message-content">Hello! Welcome to the Election Guide Assistant. To get started, what is your age?</div>
-            </div>
-        </main>
-        
-        <footer class="chat-input-area">
-            <div class="input-wrapper">
-                <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
-                <button id="send-btn" aria-label="Send message">
-                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                </button>
-            </div>
-        </footer>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <h2>🗳️ ElectionGuide</h2>
+    <div class="nav-buttons">
+      <button onclick="startChat()">Ask</button>
+      <button onclick="showTimeline()">Timeline</button>
+      <button onclick="showGlossary()">Glossary</button>
+      <button onclick="showQuiz()">Quiz</button>
     </div>
-    <script src="script.js"></script>
+  </div>
+
+  <!-- Main -->
+  <div class="container">
+    <h1>Understand Elections, One Step at a Time</h1>
+
+    <!-- Suggestions -->
+    <div class="suggestions">
+      <button onclick="quickAsk('register')">How do I register?</button>
+      <button onclick="quickAsk('vote location')">Where do I vote?</button>
+      <button onclick="quickAsk('election day')">When is election day?</button>
+      <button onclick="quickAsk('documents')">Documents needed?</button>
+    </div>
+
+    <!-- Chat -->
+    <div id="chatBox" class="chat-box"></div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="Ask a question..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+<script src="script.js"></script>
 </body>
 </html>

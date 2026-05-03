@@ -1,132 +1,122 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const chatBox = document.getElementById('chat-box');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
+let step = 0;
+let userAge = 0;
 
-    // Define the chatbot state
-    let currentState = 'ASK_AGE';
+// Add message to chat
+function addMessage(sender, text) {
+  const chatBox = document.getElementById("chatBox");
+  const msg = document.createElement("div");
+  msg.classList.add("message");
 
-    function addMessage(text, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', sender);
-        
-        const contentDiv = document.createElement('div');
-        contentDiv.classList.add('message-content');
-        
-        // Replace newlines with <br> for simple formatting
-        let formattedText = text.replace(/\n/g, '<br>');
-        // Replace **text** with <strong>text</strong> for basic bolding
-        formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        contentDiv.innerHTML = formattedText;
-        
-        messageDiv.appendChild(contentDiv);
-        chatBox.appendChild(messageDiv);
-        
-        // Scroll to bottom smoothly
-        chatBox.scrollTo({
-            top: chatBox.scrollHeight,
-            behavior: 'smooth'
-        });
+  if (sender === "You") {
+    msg.classList.add("user");
+  } else {
+    msg.classList.add("bot");
+  }
+
+  msg.innerText = sender + ": " + text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Send message
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
+  if (text === "") return;
+
+  addMessage("You", text);
+  input.value = "";
+
+  handleChat(text.toLowerCase());
+}
+
+// Quick buttons
+function quickAsk(q) {
+  document.getElementById("userInput").value = q;
+  sendMessage();
+}
+
+// Start chat
+function startChat() {
+  addMessage("Bot", "Hi! I’m your Election Assistant 😊");
+  addMessage("Bot", "What is your age?");
+  step = 1;
+}
+
+// Main logic
+function handleChat(text) {
+  if (step === 0) {
+    startChat();
+  }
+
+  else if (step === 1) {
+    userAge = parseInt(text);
+
+    if (isNaN(userAge)) {
+      addMessage("Bot", "Please enter a valid age.");
+      return;
     }
 
-    function getReprompt() {
-        if (currentState === 'ASK_AGE') {
-            return "\n\n*(Please tell me your age to continue)*";
-        } else if (currentState === 'ASK_REGISTERED') {
-            return "\n\n*(Are you currently registered to vote? Yes/No)*";
-        }
-        return "";
+    if (userAge < 18) {
+      addMessage("Bot", "You are not eligible to vote yet.");
+      step = 0;
+    } else {
+      addMessage("Bot", "You are eligible to vote!");
+      addMessage("Bot", "Are you registered? (yes/no)");
+      step = 2;
     }
+  }
 
-    function processInput(text) {
-        const lowerText = text.toLowerCase().trim();
-
-        // Check for "timeline" keyword at any point
-        if (lowerText.includes('timeline')) {
-            const timelineInfo = "**Sample Election Timeline**:\n• Registration Deadline: October 15, 2026\n• Voting Date: November 3, 2026\n• Result Date: November 5, 2026";
-            return timelineInfo + getReprompt();
-        }
-
-        // Check for "polling", "location", "booth", "where" to trigger polling location flow
-        if (lowerText.includes('polling') || lowerText.includes('location') || lowerText.includes('booth') || lowerText.includes('where')) {
-            const previousState = currentState;
-            currentState = 'ASK_CITY';
-            // Store previous state so we could theoretically return to it, but for simplicity we'll just ask for the city.
-            return "Sure! I can help you find a mock polling location. What city do you live in?";
-        }
-
-        if (currentState === 'ASK_CITY') {
-            const city = text.trim();
-            currentState = 'END'; // End the flow after providing the location
-            const mapLink = `https://www.google.com/maps/search/polling+location+${encodeURIComponent(city)}`;
-            // Format link using markdown style which we can parse in addMessage
-            return `Here is a mock polling location search for **${city}**:\n<a href="${mapLink}" target="_blank" style="color: var(--user-msg-bg); text-decoration: underline;">View Polling Locations on Google Maps</a>\n\nIf you have more questions, please reload the page.`;
-        }
-
-        if (currentState === 'ASK_AGE') {
-            // First: Ask user's age
-            const age = parseInt(lowerText, 10);
-            
-            if (isNaN(age)) {
-                return "Please enter a valid number for your age.";
-            }
-            
-            if (age < 18) {
-                // If age < 18 → say not eligible
-                currentState = 'END';
-                return "Since you are under 18, you are not eligible to vote yet. Check back when you're older!";
-            } else {
-                // If age ≥ 18 → ask if registered
-                currentState = 'ASK_REGISTERED';
-                return "You are eligible to vote! Are you currently registered to vote? (Yes/No)";
-            }
-        } 
-        else if (currentState === 'ASK_REGISTERED') {
-            if (lowerText.includes('yes') || lowerText === 'y') {
-                // If registered → show voting steps
-                currentState = 'END';
-                return "Awesome! Here are your next steps to vote:\n1. Find your polling location.\n2. Bring a valid ID.\n3. Cast your ballot!";
-            } else if (lowerText.includes('no') || lowerText === 'n') {
-                // If not registered → explain how to register
-                currentState = 'END';
-                return "No problem! You can register to vote online or at your local election office. You usually need proof of identity and residence.";
-            } else {
-                return "Please answer Yes or No. Are you registered to vote?";
-            }
-        }
-        else if (currentState === 'END') {
-            return "If you have more questions, please reload the page to start over.";
-        }
+  else if (step === 2) {
+    if (text === "no") {
+      addMessage("Bot", "You can register online or at your local election office.");
+      addMessage("Bot", "You need ID proof and address proof.");
+      step = 0;
+    } else if (text === "yes") {
+      addMessage("Bot", "Great! On election day:");
+      addMessage("Bot", "1. Go to polling booth");
+      addMessage("Bot", "2. Show ID");
+      addMessage("Bot", "3. Vote using EVM");
+      step = 0;
+    } else {
+      addMessage("Bot", "Please answer yes or no.");
     }
+  }
 
-    function handleSend() {
-        const text = userInput.value.trim();
-        if (text === '') return;
+  // Extra features
+  if (text.includes("register")) {
+    addMessage("Bot", "You can register online on the official election website.");
+  }
 
-        // Add user message
-        addMessage(text, 'user');
-        
-        // Clear input
-        userInput.value = '';
-        
-        // Determine the response based on current state
-        const response = processInput(text);
-        
-        // Simulate a typing delay and then an assistant response
-        setTimeout(() => {
-            addMessage(response, 'assistant');
-        }, 600);
-    }
+  if (text.includes("vote location")) {
+    addMessage("Bot", "You can check your polling booth on official election portals.");
+  }
 
-    sendBtn.addEventListener('click', handleSend);
+  if (text.includes("documents")) {
+    addMessage("Bot", "Required documents: ID proof, address proof.");
+  }
 
-    userInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault(); // Prevent default form submission or newlines
-            handleSend();
-        }
-    });
-    
-    // Focus input on load
-    userInput.focus();
-});
+  if (text.includes("election day")) {
+    addMessage("Bot", "Election Day is usually announced by the election commission.");
+  }
+}
+
+// Extra buttons
+function showTimeline() {
+  addMessage("Bot", "Timeline:");
+  addMessage("Bot", "- Registration Deadline: Oct 1");
+  addMessage("Bot", "- Voting Day: Nov 5");
+  addMessage("Bot", "- Results: Nov 10");
+}
+
+function showGlossary() {
+  addMessage("Bot", "Glossary:");
+  addMessage("Bot", "EVM: Electronic Voting Machine");
+  addMessage("Bot", "Constituency: Voting area");
+}
+
+function showQuiz() {
+  addMessage("Bot", "Quiz:");
+  addMessage("Bot", "Minimum voting age?");
+  addMessage("Bot", "Answer: 18");
+}
