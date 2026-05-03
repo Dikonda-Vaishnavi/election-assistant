@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: Arial;
-  background: #1e1b2e;
+  background: #0f0e16;
   color: white;
 }
 
@@ -49,7 +49,7 @@ body {
 /* Chat */
 .chat-box {
   height: 300px;
-  background: #2a2540;
+  background: #990cf1;
   border-radius: 10px;
   padding: 10px;
   overflow-y: auto;
