@@ -6,38 +6,55 @@
 </head>
 <body>
 
-  <!-- Navbar -->
-  <div class="navbar">
-    <h2>🗳️ ElectionGuide</h2>
-    <div class="nav-buttons">
-      <button onclick="startChat()">Ask</button>
-      <button onclick="showTimeline()">Timeline</button>
-      <button onclick="showGlossary()">Glossary</button>
-      <button onclick="showQuiz()">Quiz</button>
-    </div>
+<!-- Navbar -->
+<div class="navbar">
+  <h2>🗳️ ElectionGuide</h2>
+  <div class="nav-buttons">
+    <button onclick="showSection('chat')">Ask</button>
+    <button onclick="showSection('timeline')">Timeline</button>
+    <button onclick="showSection('glossary')">Glossary</button>
+    <button onclick="showSection('quiz')">Quiz</button>
   </div>
+</div>
 
-  <!-- Main -->
-  <div class="container">
-    <h1>Understand Elections, One Step at a Time</h1>
+<!-- Main -->
+<div class="container">
+  <h1>Understand Elections, One Step at a Time</h1>
 
-    <!-- Suggestions -->
-    <div class="suggestions">
-      <button onclick="quickAsk('register')">How do I register?</button>
-      <button onclick="quickAsk('vote location')">Where do I vote?</button>
-      <button onclick="quickAsk('election day')">When is election day?</button>
-      <button onclick="quickAsk('documents')">Documents needed?</button>
-    </div>
-
-    <!-- Chat -->
+  <!-- CHAT -->
+  <div id="chatSection" class="section active">
     <div id="chatBox" class="chat-box"></div>
 
-    <!-- Input -->
     <div class="input-area">
       <input type="text" id="userInput" placeholder="Ask a question..." />
       <button onclick="sendMessage()">Send</button>
     </div>
   </div>
+
+  <!-- TIMELINE -->
+  <div id="timelineSection" class="section hidden">
+    <h2>📅 Election Timeline</h2>
+    <p>📌 Registration Deadline: October 1</p>
+    <p>🗳️ Voting Day: November 5</p>
+    <p>📊 Results Announcement: November 10</p>
+  </div>
+
+  <!-- GLOSSARY -->
+  <div id="glossarySection" class="section hidden">
+    <h2>📘 Glossary</h2>
+    <p><b>EVM:</b> Electronic Voting Machine</p>
+    <p><b>Constituency:</b> A voting area</p>
+    <p><b>Ballot:</b> Method of voting</p>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quizSection" class="section hidden">
+    <h2>🧠 Quiz</h2>
+    <p>Q: Minimum voting age?</p>
+    <p><b>Answer:</b> 18 years</p>
+  </div>
+
+</div>
 
 <script src="script.js"></script>
 </body>

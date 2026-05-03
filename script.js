@@ -1,7 +1,17 @@
 let step = 0;
 let userAge = 0;
 
-// Add message to chat
+// Switch sections
+function showSection(section) {
+  document.getElementById("chatSection").classList.add("hidden");
+  document.getElementById("timelineSection").classList.add("hidden");
+  document.getElementById("glossarySection").classList.add("hidden");
+  document.getElementById("quizSection").classList.add("hidden");
+
+  document.getElementById(section + "Section").classList.remove("hidden");
+}
+
+// Add message
 function addMessage(sender, text) {
   const chatBox = document.getElementById("chatBox");
   const msg = document.createElement("div");
@@ -30,26 +40,16 @@ function sendMessage() {
   handleChat(text.toLowerCase());
 }
 
-// Quick buttons
-function quickAsk(q) {
-  document.getElementById("userInput").value = q;
-  sendMessage();
-}
-
-// Start chat
-function startChat() {
-  addMessage("Bot", "Hi! I’m your Election Assistant 😊");
-  addMessage("Bot", "What is your age?");
-  step = 1;
-}
-
-// Main logic
+// Chat logic
 function handleChat(text) {
   if (step === 0) {
-    startChat();
+    addMessage("Bot", "Hi! I’m your Election Assistant 😊");
+    addMessage("Bot", "What is your age?");
+    step = 1;
+    return;
   }
 
-  else if (step === 1) {
+  if (step === 1) {
     userAge = parseInt(text);
 
     if (isNaN(userAge)) {
@@ -65,58 +65,35 @@ function handleChat(text) {
       addMessage("Bot", "Are you registered? (yes/no)");
       step = 2;
     }
+    return;
   }
 
-  else if (step === 2) {
+  if (step === 2) {
     if (text === "no") {
       addMessage("Bot", "You can register online or at your local election office.");
       addMessage("Bot", "You need ID proof and address proof.");
       step = 0;
     } else if (text === "yes") {
-      addMessage("Bot", "Great! On election day:");
-      addMessage("Bot", "1. Go to polling booth");
-      addMessage("Bot", "2. Show ID");
-      addMessage("Bot", "3. Vote using EVM");
+      addMessage("Bot", "On election day:");
+      addMessage("Bot", "1. Visit your polling booth");
+      addMessage("Bot", "2. Show your ID");
+      addMessage("Bot", "3. Cast your vote using EVM");
       step = 0;
     } else {
       addMessage("Bot", "Please answer yes or no.");
     }
   }
 
-  // Extra features
+  // Extra responses
   if (text.includes("register")) {
-    addMessage("Bot", "You can register online on the official election website.");
-  }
-
-  if (text.includes("vote location")) {
-    addMessage("Bot", "You can check your polling booth on official election portals.");
+    addMessage("Bot", "Register online through the official election website.");
   }
 
   if (text.includes("documents")) {
-    addMessage("Bot", "Required documents: ID proof, address proof.");
+    addMessage("Bot", "Required documents: ID proof and address proof.");
   }
 
-  if (text.includes("election day")) {
-    addMessage("Bot", "Election Day is usually announced by the election commission.");
+  if (text.includes("vote")) {
+    addMessage("Bot", "Visit your assigned polling booth to vote.");
   }
-}
-
-// Extra buttons
-function showTimeline() {
-  addMessage("Bot", "Timeline:");
-  addMessage("Bot", "- Registration Deadline: Oct 1");
-  addMessage("Bot", "- Voting Day: Nov 5");
-  addMessage("Bot", "- Results: Nov 10");
-}
-
-function showGlossary() {
-  addMessage("Bot", "Glossary:");
-  addMessage("Bot", "EVM: Electronic Voting Machine");
-  addMessage("Bot", "Constituency: Voting area");
-}
-
-function showQuiz() {
-  addMessage("Bot", "Quiz:");
-  addMessage("Bot", "Minimum voting age?");
-  addMessage("Bot", "Answer: 18");
 }
