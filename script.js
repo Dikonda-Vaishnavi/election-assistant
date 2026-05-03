@@ -1,5 +1,4 @@
-let step = 0;
-let userAge = 0;
+const API_KEY = "AIzaSyAH-V9JiikwKB7Po3pkAyEOYsqyfjP938o";
 
 // Sections
 function showSection(section) {
@@ -9,7 +8,7 @@ function showSection(section) {
   if (section === "quiz") startQuiz();
 }
 
-// Chat
+// Chat UI
 function addMessage(sender, text) {
   const chatBox = document.getElementById("chatBox");
   const msg = document.createElement("div");
@@ -20,12 +19,7 @@ function addMessage(sender, text) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Typing effect
-function botReply(text) {
-  setTimeout(() => addMessage("Bot", text), 500);
-}
-
-// Send
+// Send message (ONLY AI, no fallback)
 async function sendMessage() {
   const input = document.getElementById("userInput");
   const text = input.value.trim();
@@ -34,145 +28,41 @@ async function sendMessage() {
   addMessage("You", text);
   input.value = "";
 
-  // Call backend
+  addMessage("Bot", "Typing...");
+
   try {
-    const res = await fetch("http://localhost:3000/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message: text })
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `Explain election process simply for beginners: ${text}`
+                }
+              ]
+            }
+          ]
+        })
+      }
+    );
 
-    const data = await res.json();
-    addMessage("Bot", data.reply);
+    const data = await response.json();
 
-  } catch (err) {
-    addMessage("Bot", "AI not available. Using basic logic.");
+    // remove typing
+    document.querySelector(".bot:last-child").remove();
 
-    // fallback to old logic
-    handleChat(text.toLowerCase());
-  }
-}
+    const reply =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Sorry, I couldn't understand.";
 
-// Chat logic
-function handleChat(text) {
-  if (step === 0) {
-    botReply("Hi! I’m your Election Assistant 😊");
-    botReply("What is your age?");
-    step = 1;
-    return;
-  }
+    addMessage("Bot", reply);
 
-  if (step === 1) {
-    userAge = parseInt(text);
-
-    if (userAge < 18) {
-      botReply("You are not eligible to vote.");
-      step = 0;
-    } else {
-      botReply("You are eligible!");
-      botReply("Are you registered? (yes/no)");
-      step = 2;
-    }
-    return;
-  }
-
-  if (step === 2) {
-    if (text === "no") {
-      botReply("Register online or at an office with ID proof.");
-      step = 0;
-    } else {
-      botReply("Go to polling booth and vote using EVM.");
-      step = 0;
-    }
-  }
-}
-
-// QUIZ
-let quizData = [
-  {
-    q: "What is the minimum voting age?",
-    options: ["16", "18", "21", "25"],
-    correct: 1
-  },
-  {
-    q: "Who conducts elections in India?",
-    options: ["Police", "Government", "Election Commission", "Army"],
-    correct: 2
-  },
-  {
-    q: "What is an EVM?",
-    options: ["Voting Machine", "Law", "ID Card", "Booth"],
-    correct: 0
-  }
-];
-
-let currentQ = 0;
-let score = 0;
-let selected = null;
-
-// Start quiz
-function startQuiz() {
-  currentQ = 0;
-  score = 0;
-  loadQuestion();
-}
-
-// Load question
-function loadQuestion() {
-  let q = quizData[currentQ];
-  selected = null;
-
-  document.getElementById("question").innerText = q.q;
-
-  let answers = document.getElementById("answers");
-  answers.innerHTML = "";
-
-  q.options.forEach((opt, i) => {
-    let btn = document.createElement("button");
-    btn.innerText = opt;
-
-    btn.onclick = () => selectAnswer(btn, i);
-
-    answers.appendChild(btn);
-  });
-
-  document.getElementById("score").innerText = "";
-}
-
-// Select answer
-function selectAnswer(button, index) {
-  selected = index;
-
-  // remove old highlight
-  document.querySelectorAll("#answers button").forEach(btn => {
-    btn.style.background = "#6c4ed9";
-  });
-
-  // highlight selected
-  button.style.background = "#00c853";
-}
-
-// Next question
-function nextQuestion() {
-  if (selected === null) {
-    alert("Please select an answer!");
-    return;
-  }
-
-  if (selected === quizData[currentQ].correct) {
-    score++;
-  }
-
-  currentQ++;
-
-  if (currentQ < quizData.length) {
-    loadQuestion();
-  } else {
-    document.getElementById("question").innerText = "🎉 Quiz Finished!";
-    document.getElementById("answers").innerHTML = "";
-    document.getElementById("score").innerText =
-      "Your Score: " + score + " / " + quizData.length;
+  } catch (error) {
+    document.querySelector(".bot:last-child").remove();
+    addMessage("Bot", "Error connecting to AI.");
   }
 }
